@@ -36,7 +36,6 @@ def load_files():
     print("Cleaning data...")
     merge_clean_data()
     print("Done.")
-    print(covid_df.head(5))  # Prints the top n values of my data source
     # Save clean data
     covid_df.to_excel(r'export_dataframe.xlsx', index=False, header=True)
 
@@ -66,12 +65,19 @@ def load_catalogs(desc):
 def merge_clean_data():
     for fields in mappings:
         field = fields["name"]
-        print(field)
         if fields["format"] == "ID":
             covid_df.set_index(field)
         elif fields["format"] == "DATE":
             covid_df[field] = pd.to_datetime(
                 covid_df[field], errors='coerce').fillna('')
+            covid_df[field +
+                     "_YR"] = covid_df[field].apply(lambda x: x.year if x != '' else x)
+            covid_df[field + "_MT"] = covid_df[field].apply(
+                lambda x: x.month if x != '' else x)
+            covid_df[field +
+                     "_DY"] = covid_df[field].apply(lambda x: x.day if x != '' else x)
+            covid_df[field +
+                     "_WK"] = covid_df[field].apply(lambda x: x.week if x != '' else x)
         elif fields["format"] == "MUNICIPIOS":
             catalog = catalogs[fields["format"]]
             relation = fields["relation"]
@@ -94,3 +100,6 @@ def merge_clean_data():
 
 
 load_files()
+print(covid_df.isnull().sum())
+
+quit()
