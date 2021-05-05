@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import json
+import os
 
 data_file = "COVID_MX_2020_tst.xlsx"
 catalog_file = "Catalogos.xlsx"
@@ -21,23 +22,27 @@ def load_files():
     load_catalogs(desc)
     j_file.close()
 
-    print("Loading data source...")
-    # Load the main data source
-    xl = pd.ExcelFile(data_file)
-    covid_df = xl.parse('Hoja1')
-    # Describe our main data set
-    # print(covid_df.index)       # Gives me the range of the indices (Number of rows)
-    # Gives me rows and columns
-    print("The data set contains " +
-          str(covid_df.shape[0]) + " rows by " + str(covid_df.shape[1]) + " columns.")
-    # print(covid_df.dtypes)      # Describes my data source by telling me how did pandas identify each column
-    # print(covid_df.head(5))     # Prints the top n values of my data source
-    print("Done.")
-    print("Cleaning data...")
-    merge_clean_data()
-    print("Done.")
-    # Save clean data
-    covid_df.to_excel(r'export_dataframe.xlsx', index=False, header=True)
+    if not os.path.exists("export_dataframe.xlsx"):
+        print("Loading data source...")
+        # Load the main data source
+        xl = pd.ExcelFile(data_file)
+        covid_df = xl.parse('Hoja1')
+        # Describe our main data set
+        # print(covid_df.index)       # Gives me the range of the indices (Number of rows)
+        # Gives me rows and columns
+        print("The data set contains " +
+              str(covid_df.shape[0]) + " rows by " + str(covid_df.shape[1]) + " columns.")
+        # print(covid_df.dtypes)      # Describes my data source by telling me how did pandas identify each column
+        # print(covid_df.head(5))     # Prints the top n values of my data source
+        print("Done.")
+        print("Cleaning data...")
+        merge_clean_data()
+        print("Done.")
+        # Save clean data
+        covid_df.to_excel(r'export_dataframe.xlsx', index=False, header=True)
+    else:
+        xl = pd.ExcelFile(data_file)
+        covid_df = xl.parse('Hoja1')
 
 
 def load_catalogs(desc):
@@ -101,5 +106,13 @@ def merge_clean_data():
 
 load_files()
 print(covid_df.isnull().sum())
+print("= = = = = = = = =")
+print(covid_df["SEXO"].value_counts())
+print("= = = = = = = = =")
+print(covid_df["ENTIDAD_RES"].value_counts())
+print("= = = = = = = = =")
+
+sex_by_state_df = covid_df[["SEXO", "ENTIDAD_RES"]]
+print(sex_by_state_df.head())
 
 quit()
